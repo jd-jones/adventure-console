@@ -1,9 +1,12 @@
+const path = require('path');
+
 function getStyleUse(bundleFilename) {
   return [
     {
       loader: 'file-loader',
       options: {
         name: bundleFilename,
+        path: path.resolve(__dirname, 'dist')
       },
     },
     { loader: 'extract-loader' },
@@ -14,36 +17,40 @@ function getStyleUse(bundleFilename) {
         includePaths: ['./node_modules'],
         implementation: require('dart-sass'),
         fiber: require('fibers'),
-  }
+      }
     },
   ];
 }
 
 module.exports = [
-  {
-    entry: './console.scss',
-    output: {
-      // This is necessary for webpack to compile, but we never reference this js file.
-      filename: 'style-bundle-login.js',
+    {
+        mode: 'development',
+        entry: './src/console.scss',
+        devServer: {
+            contentBase: 'dist'
+        },
+        output: {
+            // This is necessary for webpack to compile, but we never use this
+            // js file.
+            filename: 'style-bundle-console.js',
+            path: path.resolve(__dirname, 'dist')
+        },
+        module: {
+            rules: [{
+                test: /\.scss$/,
+                use: getStyleUse('console.css')
+            }]
+        },
     },
-    module: {
-      rules: [{
-        test: /console.scss$/,
-        use: getStyleUse('bundle-console.css')
-      }]
-    },
-  },
-  {
-    entry: "./console.js",
-    output: {
-      filename: "bundle-console.js"
-    },
-    module: {
-      loaders: [{
-        test: /console.js$/,
-        loader: 'babel-loader',
-        query: {presets: ['env']}
-      }]
-    },
-  }
+    {
+        mode: 'development',
+        entry: './src/console.js',
+        devServer: {
+            contentBase: 'dist'
+        },
+        output: {
+            filename: 'console.js',
+            path: path.resolve(__dirname, 'dist')
+        },
+    }
 ];
