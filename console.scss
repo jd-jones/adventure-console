@@ -1,0 +1,52 @@
+:root {
+    /* 8 achromatic */
+    --baseA: #263238;
+    --baseB: #2E3C43;
+    --baseC: #314549;
+    --baseD: #546E7A;
+    --baseE: #B2CCD6;
+    --baseF: #EEFFFF;
+    --baseG: #EEFFFF;
+    --baseH: #FFFFFF;
+    /* 8 colors: ROYGBIV + pink-red */
+    --baseI: #F07178;
+    --baseJ: #F78C6C;
+    --baseK: #FFCB6B;
+    --baseL: #C3E88D;
+    --baseM: #89DDFF;
+    --baseN: #82AAFF;
+    --baseO: #C792EA;
+    --baseP: #FF5370;
+
+}
+
+
+body {
+    margin: auto;
+    padding: 0px;
+    height: 99%;
+    background-color: var(--baseA);
+    color: var(--baseH);
+    font-family: 'Inconsolata', monospace
+}
+
+textarea {
+    background-color: var(--baseB);
+    color: var(--baseH);
+    border: 2px solid var(--baseE);
+    border-radius: 4px;
+    resize: none;
+    padding: 12px 12px;
+    display: block;
+    width: 75%;
+    margin: auto;
+}
+
+#console_title {
+    /* padding: 1%; */
+    text-align: center;
+}
+
+#console {
+    padding: 1%;
+}
