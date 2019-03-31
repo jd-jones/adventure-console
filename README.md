@@ -26,11 +26,11 @@ user@host:~$ npm -v
 ```
 Clone this repository, then install the project dependencies from the repository root:
 ``` console
-user@host:~/repo/adventure-console:~$ npm install
+user@host:~/repo/adventure-console$ npm install
 ```
 Finally, start the dev server:
 ``` console
-user@host:~/repo/adventure-console:~$ npm run
+user@host:~/repo/adventure-console$ npm run
 ```
 Navigate to http://localhost:8080 to view the running project.
 
