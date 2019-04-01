@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Adventure Console</title>
+    <!--<link rel="shortcut icon" href="https://material.io/favicon.ico">-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+    <link rel="stylesheet" href="console.css">
+  </head>
+
+  <body>
+    <div id="console">
+    <p id="console_title">Welcome to the Adventure Console&trade; (v0.0.0)</p>
+    <textarea id="console_out", rows="20", readonly></textarea>
+    <form action="">
+      <input id="cmd_prompt", autocomplete="off", autofocus/>
+    </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        $('form').submit(function(e){
+          e.preventDefault(); // prevents page reloading
+          socket.emit('prompt_input', $('#cmd_prompt').val());
+          $('#cmd_prompt').val('');
+          return false;
+        });
+				socket.on('console_output', function(msg){
+					$('#console_out').empty(msg);
+					$('#console_out').append(msg);
+				});
+      });
+    </script>
+  </body>
+
+</html>

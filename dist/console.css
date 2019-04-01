@@ -42,6 +42,18 @@ textarea {
     margin: auto;
 }
 
+input {
+    background-color: var(--baseB);
+    color: var(--baseH);
+    border: 2px solid var(--baseE);
+    border-radius: 4px;
+    resize: none;
+    padding: 12px 12px;
+    display: block;
+    width: 75%;
+    margin: auto;
+}
+
 #console_title {
     /* padding: 1%; */
     text-align: center;
