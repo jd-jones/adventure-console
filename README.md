@@ -15,7 +15,7 @@ elements into your stories.
 
 The Adventure Console isn't ready yet. Check back later for updates!
 
-## Installation (development only)
+## Setup
 
 First, make sure you have [Node.js] and [npm] (which comes with Node.js) installed. Here's one way to check:
 ``` console
@@ -28,11 +28,11 @@ Clone this repository, then install the project dependencies from the repository
 ``` console
 user@host:~/repo/adventure-console$ npm install
 ```
-Finally, start the dev server:
+Finally, start the app:
 ``` console
-user@host:~/repo/adventure-console$ npm run
+user@host:~/repo/adventure-console$ node adventure-console.js
 ```
-Navigate to http://localhost:8080 to view the running project.
+Navigate to http://localhost:3000 to view the running project.
 
 [Node.js]: https://nodejs.org/
 [npm]: https://www.npmjs.com/
