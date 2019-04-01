@@ -1,22 +1,20 @@
 :root {
-    /* 8 achromatic */
-    --baseA: #263238;
-    --baseB: #2E3C43;
-    --baseC: #314549;
-    --baseD: #546E7A;
-    --baseE: #B2CCD6;
-    --baseF: #EEFFFF;
-    --baseG: #EEFFFF;
-    --baseH: #FFFFFF;
-    /* 8 colors: ROYGBIV + pink-red */
-    --baseI: #F07178;
-    --baseJ: #F78C6C;
-    --baseK: #FFCB6B;
-    --baseL: #C3E88D;
-    --baseM: #89DDFF;
-    --baseN: #82AAFF;
-    --baseO: #C792EA;
-    --baseP: #FF5370;
+    --c-black:            #263238;
+    --c-darkgrey-dark:    #2E3C43;
+    --c-darkgrey:         #314549;
+    --c-darkgrey-light:   #546E7A;
+    --c-lightgrey-dark:   #B2CCD6;
+    --c-lightgrey:        #EEFFFF;
+    --c-lightgrey-light:  #EEFFFF;
+    --c-white:            #FFFFFF;
+    --c-red:              #F07178;
+    --c-orange:           #F78C6C;
+    --c-yellow:           #FFCB6B;
+    --c-green:            #C3E88D;
+    --c-blue:             #89DDFF;
+    --c-indigo:           #82AAFF;
+    --c-violet:           #C792EA;
+    --c-pink:             #FF5370;
 
 }
 
@@ -25,37 +23,60 @@ body {
     margin: auto;
     padding: 0px;
     height: 99%;
-    background-color: var(--baseA);
-    color: var(--baseH);
+    background-color: var(--c-black);
+    color: var(--c-white);
     font-family: 'Inconsolata', monospace
 }
 
-textarea {
-    background-color: var(--baseB);
-    color: var(--baseH);
-    border: 2px solid var(--baseE);
+.location {
+    color: var(--c-blue);
+}
+
+.action {
+    color: var(--c-yellow);
+}
+
+.object {
+    color: var(--c-violet);
+}
+
+.enemy {
+    color: var(--c-red);
+}
+
+.input {
+    color: var(--c-green);
+}
+
+#console_out {
+    background-color: var(--c-darkgrey-dark);
+    color: var(--c-white);
+    border: 2px solid var(--c-lightgrey-dark);
     border-radius: 4px;
     resize: none;
-    padding: 12px 12px;
+    padding: 20px 20px;
     display: block;
-    width: 75%;
+    width: 65vw;
+    height: 50vh;
     margin: auto;
 }
 
 input {
-    background-color: var(--baseB);
-    color: var(--baseH);
-    border: 2px solid var(--baseE);
+    background-color: var(--c-darkgrey-dark);
+    color: var(--c-white);
+    border: 2px solid var(--c-lightgrey-dark);
     border-radius: 4px;
     resize: none;
-    padding: 12px 12px;
+    padding: 20px 20px;
     display: block;
-    width: 75%;
-    margin: auto;
+    width: 65vw;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #console_title {
-    /* padding: 1%; */
     text-align: center;
 }
 

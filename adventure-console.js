@@ -25,29 +25,43 @@ const logDisconnect = () => console.log("A user disconnected.");
 const logMessage = (message) => console.log('message: ' + message);
 
 
-function initWorld () {
-	let command_monitor = '> login\n';
-	let result = '\nYou get up and survey your surroundings. '
-		+ 'A stern and unfamiliar landscape greets you. '
-		+ 'The wind whistles quietly as a pair of grey, barren '
-		+ 'mountains looms in the distance.\n\nYour head hurts.\n';
-	let hint = '\n(Enter a command in the prompt and press [RETURN] to send it)\n'
-	let response = command_monitor + result + hint;
-	io.emit('console_output', response);
-}
+const makeMonitorStr = (command) => '<span class="input">' + '> ' + command + '</span>' + '<br/>';
+
+
+const isEmpty = (str) => str === '';
+
+
+const breakWrap = (str) => isEmpty(str) ? str : '<br/>' + str + '<br/>';
 
 
 function computeResult (command) {
-	if(command != 'walk toward mountains')
-		return 'Nothing happens. Try walking toward the mountains.'
-	return 'A dragon appears out of nowhere and incinerates you. You die instantly.'
+  let result;
+  let hint;
+	if(command === 'walk toward mountains') {
+    result = 'A <span class="enemy">dragon</span> appears out of nowhere and '
+      + '<span class="action">incinerates</span> you. You die instantly.';
+    hint = "(That's it for this game! You can start over using "
+      + '<span class="action">reload</span>)';
+  } else if(command === 'login' || command === 'reload') {
+    result = 'You get up and survey your surroundings. '
+      + 'A stern and unfamiliar landscape greets you. '
+      + 'The wind whistles quietly as a pair of grey, barren '
+      + '<span class="location">mountains</span> looms in the distance.<br/><br/>'
+      + 'Your head hurts.';
+    hint = '(Enter a command in the prompt and press '
+      + '<span class="action">[RETURN]</span> to send it)';
+  } else {
+		result = 'Nothing happens.';
+    hint = '(Try <span class="action">walking</span> toward the '
+      + '<span class="location">mountains</span>.)';
+  }
+  return [breakWrap(result), breakWrap(hint)]
 }
 
 
 function sendResponse (command) {
-	let command_monitor = '> ' + command + '\n';
-	let result = '\n' + computeResult(command) + '\n';
-	let hint = '';
+	let command_monitor = makeMonitorStr(command);
+  let [result, hint] = computeResult(command)
 	let response = command_monitor + result + hint;
 	io.emit('console_output', response);
 }
@@ -55,7 +69,7 @@ function sendResponse (command) {
 
 function onConnect (socket) {
 	logConnect();
-	initWorld();
+	sendResponse('login');
 	socket.on('prompt_input', sendResponse);
 	socket.on('disconnect', logDisconnect);
 }
