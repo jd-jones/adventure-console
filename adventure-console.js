@@ -3,6 +3,21 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var _ = require('lodash');
+const fetch = require('node-fetch');
+
+
+var possible_actions = {'login': 1};
+var results;
+
+
+const returnJson = (response) => response.json();
+
+const file_name = "demo.json";
+const local_path = 'http://localhost:3000'
+const chapters_url = local_path + '/chapters/' + file_name;
+fetch(chapters_url)
+    .then(returnJson)
+    .then(function(json_obj){results = json_obj});
 
 
 function serveHome (req, res) {
@@ -34,34 +49,21 @@ const isEmpty = (str) => str === '';
 const breakWrap = (str) => isEmpty(str) ? str : '<br/>' + str + '<br/>';
 
 
-function computeResult (command) {
-  let result;
-  let hint;
-  if(command === 'walk toward mountains') {
-    result = 'A <span class="enemy">dragon</span> appears out of nowhere and '
-      + '<span class="action">incinerates</span> you. You die instantly.';
-    hint = "(That's it for this game! You can start over using "
-      + '<span class="action">reload</span>)';
-  } else if(command === 'login' || command === 'reload') {
-    result = 'You get up and survey your surroundings. '
-      + 'A stern and unfamiliar landscape greets you. '
-      + 'The wind whistles quietly as a pair of grey, barren '
-      + '<span class="location">mountains</span> looms in the distance.<br/><br/>'
-      + 'Your head hurts.';
-    hint = '(Enter a command in the prompt and press '
-      + '<span class="action">[RETURN]</span> to send it)';
-  } else {
-    result = 'Nothing happens.';
-    hint = '(Try <span class="action">walking</span> toward the '
-      + '<span class="location">mountains</span>.)';
-  }
-  return [breakWrap(result), breakWrap(hint)]
+function computeResult (results, possible_actions, command) {
+  let result_key = possible_actions[command];
+  return results[result_key];
 }
 
 
-function sendResponse (command) {
+function sendResponseBase (results, possible_actions, command) {
+  let result;
+  let hint;
+  let result_key = possible_actions[command];
+  [result, hint, possible_actions] = results[result_key];
+
   let command_monitor = makeMonitorStr(command);
-  let [result, hint] = computeResult(command)
+  result = breakWrap(result);
+  hint = breakWrap('(' + hint + ')');
   let response = command_monitor + result + hint;
   io.emit('console_output', response);
 }
@@ -74,6 +76,7 @@ function onConnect (socket) {
   socket.on('disconnect', logDisconnect);
 }
 
+const sendResponse = _.partial(sendResponseBase, results, possible_actions);
 
 const port = 3000;
 let logThisPort = _.partial(logPort, port);

@@ -1,0 +1,39 @@
+{
+  "responses": {
+    "0": {
+      "result": "Nothing happens",
+      "hint": "",
+      "actions": {}
+    },
+    "1": {
+      "result": "You get up and survey your surroundings. A stern and unfamiliar landscape greets you. The wind whistles quietly as a pair of grey, barren <span class=\"location\">mountains</span> looms in the distance.<br/><br/>Your head hurts.",
+      "hint": "Enter a command in the prompt and press <span class=\"action\">[RETURN]</span> to send it.",
+      "actions": {
+        "take a nap": "2",
+        "walk toward mountains": "4"
+      }
+    },
+    "2": {
+      "result": "You wake up feeling refreshed. The sun is now nearing its zenith, and you begin to feel thirsty. You check your <span class=\"object\">canteen</span>, but... Hey, wait a minute. Where is it?",
+      "hint": "",
+      "actions": {
+        "look for canteen": "3",
+        "walk toward mountains": "4"
+      }
+    },
+    "3": {
+      "result": "You search your <span class=\"location\">campsite</span> and the surrounding area for your canteen, but it's nowhere to be found.",
+      "hint": "Try <span class=\"action\">walking</span> toward the <span class=\"location\">mountains</span>.",
+      "actions": {
+        "walk toward mountains": "4"
+      }
+    },
+    "4": {
+      "result": "A <span class=\"enemy\">dragon</span> appears out of nowhere and <span class=\"action\">incinerates</span> you. You die instantly.",
+      "hint": "That's it for this game! You can start over using <span class=\"action\">reload</span>)",
+      "actions": {
+        "reload": "1"
+      }
+    }
+  }
+}
