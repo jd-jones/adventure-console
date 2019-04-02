@@ -22,20 +22,8 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="console_frontend.js"></script>
     <script>
-      $(function () {
-        var socket = io();
-        $('form').submit(function(e){
-          e.preventDefault(); // prevents page reloading
-          socket.emit('prompt_input', $('#cmd_prompt').val());
-          $('#cmd_prompt').val('');
-          return false;
-        });
-				socket.on('console_output', function(msg){
-					$('#console_out').empty(msg);
-					$('#console_out').append(msg);
-				});
-      });
     </script>
   </body>
 

@@ -6,10 +6,10 @@ var _ = require('lodash');
 
 
 function serveHome (req, res) {
-	let file_name = "console.html";
-	let local_path = __dirname;
-	let file_path = local_path + '/dist/' + file_name;
-	res.sendFile(file_path);
+  let file_name = "console.html";
+  let local_path = __dirname;
+  let file_path = local_path + '/dist/' + file_name;
+  res.sendFile(file_path);
 }
 
 
@@ -37,7 +37,7 @@ const breakWrap = (str) => isEmpty(str) ? str : '<br/>' + str + '<br/>';
 function computeResult (command) {
   let result;
   let hint;
-	if(command === 'walk toward mountains') {
+  if(command === 'walk toward mountains') {
     result = 'A <span class="enemy">dragon</span> appears out of nowhere and '
       + '<span class="action">incinerates</span> you. You die instantly.';
     hint = "(That's it for this game! You can start over using "
@@ -51,7 +51,7 @@ function computeResult (command) {
     hint = '(Enter a command in the prompt and press '
       + '<span class="action">[RETURN]</span> to send it)';
   } else {
-		result = 'Nothing happens.';
+    result = 'Nothing happens.';
     hint = '(Try <span class="action">walking</span> toward the '
       + '<span class="location">mountains</span>.)';
   }
@@ -60,18 +60,18 @@ function computeResult (command) {
 
 
 function sendResponse (command) {
-	let command_monitor = makeMonitorStr(command);
+  let command_monitor = makeMonitorStr(command);
   let [result, hint] = computeResult(command)
-	let response = command_monitor + result + hint;
-	io.emit('console_output', response);
+  let response = command_monitor + result + hint;
+  io.emit('console_output', response);
 }
 
 
 function onConnect (socket) {
-	logConnect();
-	sendResponse('login');
-	socket.on('prompt_input', sendResponse);
-	socket.on('disconnect', logDisconnect);
+  logConnect();
+  sendResponse('login');
+  socket.on('prompt_input', sendResponse);
+  socket.on('disconnect', logDisconnect);
 }
 
 
