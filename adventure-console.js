@@ -3,15 +3,10 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var _ = require('lodash');
-const fetch = require('node-fetch');
+const fs = require('fs');
 
 
-function serveHome (req, res) {
-  let file_name = "console.html";
-  let local_path = __dirname;
-  let file_path = local_path + '/dist/' + file_name;
-  res.sendFile(file_path);
-}
+var possible_actions;
 
 
 const logPort = (port) => console.log(`Listening on port ${port}`);
@@ -35,35 +30,37 @@ const isEmpty = (str) => str === '';
 const breakWrap = (str) => isEmpty(str) ? str : '<br/>' + str + '<br/>';
 
 
-function computeResult (results, possible_actions, command) {
-  let result_key = possible_actions[command];
-  return results[result_key];
+function serveHome (req, res) {
+  let file_name = "console.html";
+  let local_path = __dirname;
+  let file_path = local_path + '/dist/' + file_name;
+  res.sendFile(file_path);
+}
+
+function makeActionsStr(actions) {
+  const makeStr = (action_name) => '> ' + action_name;
+  let keys = Object.keys(actions);
+  let key_strs = _.map(keys, makeStr)
+  return key_strs.join('<br/>');
 }
 
 
-async function getValue(object, key) {
-  let value = await object[key];
-  return value
-}
-
-
-function sendResponseBase (results, possible_actions, command) {
-  let result;
-  let hint;
+function sendResponseBase (results, command) {
   let result_key = possible_actions[command];
-  let result_value = getValue(results, result_key);
-  console.log(result_value);
-  console.log(result_key);
-  // console.log(Object.keys(results));
-  console.log(results);
-  [result, hint, possible_actions] = results[result_key];
+  let result_value = results[result_key];
+
+  let result = result_value.result;
+  let hint = result_value.hint;
+  possible_actions = result_value.actions;
 
   let command_monitor = makeMonitorStr(command);
   result = breakWrap(result);
-  hint = breakWrap('(' + hint + ')');
-  let response = command_monitor + result + hint;
+  hint = breakWrap(hint);
+  let actions_str = breakWrap(makeActionsStr(possible_actions))
+  let response = command_monitor + result + actions_str + hint
   io.emit('console_output', response);
 }
+
 
 function onConnect (socket) {
   logConnect();
@@ -73,22 +70,11 @@ function onConnect (socket) {
 }
 
 
-// var results;
+possible_actions = {'login': '1'};
 
-async function loadJson (url) {
-  let response = await fetch(url);
-  return await response.json();
-}
+const results = JSON.parse(fs.readFileSync('dist/chapters/demo.json'));
 
-
-var possible_actions = {'login': '1'};
-
-const file_name = "demo.json";
-const local_path = 'http://localhost:3000'
-const chapter_url = local_path + '/chapters/' + file_name;
-const results = loadJson(chapter_url);
-
-const sendResponse = _.partial(sendResponseBase, results, possible_actions);
+const sendResponse = _.partial(sendResponseBase, results);
 
 const port = 3000;
 let logThisPort = _.partial(logPort, port);
