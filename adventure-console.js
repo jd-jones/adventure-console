@@ -6,7 +6,14 @@ var _ = require('lodash');
 const fs = require('fs');
 
 
-var possible_actions;
+// Global vars --- maybe these should be attributes in an object
+var handleClientResponse;
+
+var all_inputs;
+var all_outputs;
+var hints;
+var state_machine;
+var cur_state;
 
 
 const logPort = (port) => console.log(`Listening on port ${port}`);
@@ -37,47 +44,75 @@ function serveHome (req, res) {
   res.sendFile(file_path);
 }
 
+
 function makeActionsStr(actions) {
   const makeStr = (action_name) => '> ' + action_name;
-  let keys = Object.keys(actions);
-  let key_strs = _.map(keys, makeStr)
-  return key_strs.join('<br/>');
+  let act_strs = _.map(actions, makeStr)
+  return act_strs.join('<br/>');
 }
 
 
-function sendResponseBase (results, command) {
-  let result_key = possible_actions[command];
-  let result_value = results[result_key];
+function sendResponse (input) {
+  let input_idx_as_str = String(all_inputs.indexOf(input));
+  let value = state_machine[cur_state][input_idx_as_str];
+  if (value === undefined)
+    value = state_machine[cur_state]["undefined"];
 
-  let result = result_value.result;
-  let hint = result_value.hint;
-  possible_actions = result_value.actions;
+  let output = all_outputs[value.output];
+  cur_state = value.next_state;
+  let hint = hints[value.hint];
 
-  let command_monitor = makeMonitorStr(command);
-  result = breakWrap(result);
+  let possible_actions = _.map(
+    Object.keys(state_machine[cur_state]),
+    (idx_str) => all_inputs[idx_str]
+  )
+
+  let command_monitor = makeMonitorStr(input);
+  output = breakWrap(output);
   hint = breakWrap(hint);
   let actions_str = breakWrap(makeActionsStr(possible_actions))
-  let response = command_monitor + result + actions_str + hint
+  let response = command_monitor + output + actions_str + hint
   io.emit('console_output', response);
+}
+
+
+function selectChapter (string) {
+  let json_doc = JSON.parse(fs.readFileSync(base_dir + '/' + string + '.json'));
+  all_inputs = json_doc.input;
+  all_outputs = json_doc.output;
+  hints = json_doc.hint;
+  state_machine = json_doc.state_machine;
+  cur_state = "0";
+  handleClientResponse = sendResponse;
+  socket.on('prompt_input', handleClientResponse);
+  handleClientResponse('login');
+}
+
+
+function listDirs (string) {
+  let dir_contents = fs.readdirSync(base_dir);
+  const makeStr = (file_name) => '* ' + file_name.split('.')[0];
+  let dir_str = _.map(dir_contents, makeStr).join('<br/>');
+  let instructions = 'Choose a chapter:<br/>';
+  let out_str = instructions + dir_str;
+  handleClientResponse = selectChapter;
+  io.emit('console_output', out_str);
 }
 
 
 function onConnect (socket) {
   logConnect();
-  sendResponse('login');
-  socket.on('prompt_input', sendResponse);
+  listDirs();
+  socket.on('prompt_input', handleClientResponse);
   socket.on('disconnect', logDisconnect);
 }
 
 
-possible_actions = {'login': '1'};
-
-const results = JSON.parse(fs.readFileSync('dist/chapters/demo.json'));
-
-const sendResponse = _.partial(sendResponseBase, results);
-
+const base_dir = 'dist/chapters';
 const port = 3000;
 let logThisPort = _.partial(logPort, port);
+handleClientResponse = listDirs;
+
 
 app.use(express.static('dist'))
 
