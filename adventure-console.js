@@ -1,21 +1,26 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var _ = require('lodash');
+let express = require('express');
+let app = express();
+let http = require('http').Server(app);
+const io = require('socket.io')(http);
+const _ = require('lodash');
 const fs = require('fs');
+const path = require('path');
 
 
 // Global vars --- maybe these should be attributes in an object
-var handleClientResponse;
+let all_inputs;
+let all_outputs;
+let hints;
+let state_machine;
+let cur_state;
+let connected_sockets = [];
 
-var all_inputs;
-var all_outputs;
-var hints;
-var state_machine;
-var cur_state;
+// Global constants
+const base_dir = 'dist/chapters';
+const port = 3000;
 
 
+// Function definitions
 const logPort = (port) => console.log(`Listening on port ${port}`);
 
 
@@ -23,9 +28,6 @@ const logConnect = () => console.log("A user connected.");
 
 
 const logDisconnect = () => console.log("A user disconnected.");
-
-
-const logMessage = (message) => console.log('message: ' + message);
 
 
 const makeMonitorStr = (command) => '<span class="input">' + '> ' + command + '</span>' + '<br/>';
@@ -37,10 +39,25 @@ const isEmpty = (str) => str === '';
 const breakWrap = (str) => isEmpty(str) ? str : '<br/>' + str + '<br/>';
 
 
+const setHandler = (message, handler, socket) => {
+  socket.removeAllListeners(message);
+  socket.on(message, handler);
+}
+
+
+const setInputHandler = _.partial(setHandler, 'prompt_input');
+
+
+const setInputHandlerForAllSockets = (handler) => {
+  const setThisHandler = _.partial(setInputHandler, handler);
+  connected_sockets.forEach(setThisHandler);
+}
+
+
 function serveHome (req, res) {
   let file_name = "console.html";
   let local_path = __dirname;
-  let file_path = local_path + '/dist/' + file_name;
+  let file_path = path.join(local_path, 'dist', file_name);
   res.sendFile(file_path);
 }
 
@@ -63,9 +80,9 @@ function sendResponse (input) {
   let hint = hints[value.hint];
 
   let possible_actions = _.map(
-    Object.keys(state_machine[cur_state]),
+    _.filter(Object.keys(state_machine[cur_state]), (x) => x !== "undefined"),
     (idx_str) => all_inputs[idx_str]
-  )
+  );
 
   let command_monitor = makeMonitorStr(input);
   output = breakWrap(output);
@@ -77,47 +94,41 @@ function sendResponse (input) {
 
 
 function selectChapter (string) {
-  let json_doc = JSON.parse(fs.readFileSync(base_dir + '/' + string + '.json'));
+  const json_path = path.join(base_dir, string + '.json');
+  let json_doc = JSON.parse(fs.readFileSync(json_path));
   all_inputs = json_doc.input;
   all_outputs = json_doc.output;
   hints = json_doc.hint;
   state_machine = json_doc.state_machine;
   cur_state = "0";
-  handleClientResponse = sendResponse;
-  socket.on('prompt_input', handleClientResponse);
-  handleClientResponse('login');
+
+  setInputHandlerForAllSockets(sendResponse);
+  sendResponse('login');
 }
 
 
-function listDirs (string) {
+function listDirs () {
   let dir_contents = fs.readdirSync(base_dir);
+
   const makeStr = (file_name) => '* ' + file_name.split('.')[0];
   let dir_str = _.map(dir_contents, makeStr).join('<br/>');
   let instructions = 'Choose a chapter:<br/>';
   let out_str = instructions + dir_str;
-  handleClientResponse = selectChapter;
+
+  setInputHandlerForAllSockets(selectChapter);
   io.emit('console_output', out_str);
 }
 
 
 function onConnect (socket) {
   logConnect();
+  connected_sockets.push(socket);
   listDirs();
-  socket.on('prompt_input', handleClientResponse);
   socket.on('disconnect', logDisconnect);
 }
 
-
-const base_dir = 'dist/chapters';
-const port = 3000;
-let logThisPort = _.partial(logPort, port);
-handleClientResponse = listDirs;
-
-
+// Main script
 app.use(express.static('dist'))
-
 app.get('/', serveHome);
-
 io.on('connection', onConnect);
-
-http.listen(port, logThisPort);
+http.listen(port, _.partial(logPort, port));

@@ -18,7 +18,6 @@ function writeToConsoleEmulator(msg) {
 
 $(function () {
   var socket = io();
-
   const sendCommandToSocket = (e) => sendCommand(e, socket);
   $('form').submit(sendCommandToSocket);
 

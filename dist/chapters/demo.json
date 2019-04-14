@@ -17,7 +17,7 @@
 
   "hint": [
     "Enter a command in the prompt and press <span class=\"action\">[RETURN]</span> to send it.",
-    "That's it for this game! You can start over using <span class=\"action\">reload</span>)"
+    "That's it for this game! You can start over using <span class=\"action\">reload</span>"
   ],
 
   "state_machine": {
@@ -31,7 +31,7 @@
       "undefined": {"output": "0", "next_state": "1", "hint": "0"}
   },
     "2": {
-      "3": {"output": "2", "next_state": "2", "hint": "0"},
+      "3": {"output": "3", "next_state": "3", "hint": "0"},
       "2": {"output": "4", "next_state": "4", "hint": "1"},
       "undefined": {"output": "0", "next_state": "2", "hint": "0"}
   },
@@ -40,7 +40,7 @@
       "undefined": {"output": "0", "next_state": "3", "hint": "0"}
   },
     "4": {
-      "4": {"output": "1", "next_state": "0", "hint": "0"},
+      "4": {"output": "1", "next_state": "1", "hint": "0"},
       "undefined": {"output": "0", "next_state": "4", "hint": "0"}
     }
   }
