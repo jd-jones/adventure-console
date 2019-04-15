@@ -23,36 +23,27 @@ const port = 3000;
 // Function definitions
 const logPort = (port) => console.log(`Listening on port ${port}`);
 
-
 const logConnect = () => console.log("A user connected.");
-
 
 const logDisconnect = () => console.log("A user disconnected.");
 
-
 const makeMonitorStr = (command) => '<span class="input">' + '> ' + command + '</span>' + '<br/>';
-
 
 const isEmpty = (str) => str === '';
 
-
 const breakWrap = (str) => isEmpty(str) ? str : '<br/>' + str + '<br/>';
-
 
 const setHandler = (message, handler, socket) => {
   socket.removeAllListeners(message);
   socket.on(message, handler);
 }
 
-
 const setInputHandler = _.partial(setHandler, 'prompt_input');
-
 
 const setInputHandlerForAllSockets = (handler) => {
   const setThisHandler = _.partial(setInputHandler, handler);
   connected_sockets.forEach(setThisHandler);
 }
-
 
 function serveHome (req, res) {
   let file_name = "console.html";
@@ -61,13 +52,11 @@ function serveHome (req, res) {
   res.sendFile(file_path);
 }
 
-
 function makeActionsStr(actions) {
   const makeStr = (action_name) => '> ' + action_name;
   let act_strs = _.map(actions, makeStr)
   return act_strs.join('<br/>');
 }
-
 
 function sendResponse (input) {
   let input_idx_as_str = String(all_inputs.indexOf(input));
@@ -106,7 +95,6 @@ function selectChapter (string) {
   sendResponse('login');
 }
 
-
 function listDirs () {
   let dir_contents = fs.readdirSync(base_dir);
 
@@ -119,13 +107,13 @@ function listDirs () {
   io.emit('console_output', out_str);
 }
 
-
 function onConnect (socket) {
   logConnect();
   connected_sockets.push(socket);
   listDirs();
   socket.on('disconnect', logDisconnect);
 }
+
 
 // Main script
 app.use(express.static('dist'))
