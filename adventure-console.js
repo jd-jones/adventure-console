@@ -38,6 +38,93 @@ const setHandler = (message, handler, socket) => {
   socket.on(message, handler);
 }
 
+
+function encounter(players, enemies) {
+  while (!_.isEmpty(players) || !_.isEmpty(enemies)) {
+    // TODO: sort agents by speed to determine turn order
+    let agents = players.concat(enemies);
+    for (let agent of agents) {
+      agent.takeTurn();
+    }
+  }
+}
+
+
+class WorldState {
+  constructor() {
+    this.objects = [];
+    this.players = [];
+    this.enemies = [];
+  }
+
+
+  addPlayer(player) {
+    this.players.push(player);
+  }
+
+  addEnemy(enemy) {
+    this.enemies.push(enemy);
+  }
+
+  addObject(object) {
+    this.objects.push(object);
+  }
+}
+
+class InanimateObject {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+class Agent {
+  constructor(name) {
+    this.name = name;
+
+    // For now, everything has 10 HP, 5 ATK, 3 DEF
+    this.health = 10;
+    this.attack = 5;
+    this.defence = 3;
+  }
+
+  attack(agent) {
+    agent.takeHit(this.attack);
+  }
+
+  takeHit(attack) {
+    let corrected_attack = Math.min(attack - this.defence, 0);
+    self.updateHealth(-corrected_attack);
+  }
+
+  updateHealth(difference) {
+    self.health += difference;
+    
+    if(self.health > 0)
+      console.log(`$this.name has died!`);
+  }
+
+  takeTurn() {
+    return undefined
+  }
+}
+
+
+class Enemy extends Agent {
+  takeTurn() {
+    // TODO: prompt AI for input
+    return undefined
+  }
+}
+
+
+class Player extends Agent {
+  takeTurn() {
+    // TODO: Prompt user for input
+    return undefined
+  }
+}
+
+
 const setInputHandler = _.partial(setHandler, 'prompt_input');
 
 const setInputHandlerForAllSockets = (handler) => {
