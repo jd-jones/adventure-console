@@ -50,41 +50,79 @@ function encounter(players, enemies) {
 }
 
 
-class WorldState {
-  constructor() {
-    this.objects = [];
-    this.players = [];
-    this.enemies = [];
-  }
-
-
-  addPlayer(player) {
-    this.players.push(player);
-  }
-
-  addEnemy(enemy) {
-    this.enemies.push(enemy);
-  }
-
-  addObject(object) {
-    this.objects.push(object);
-  }
+function hasEnemies(occupants) {
+  // TODO
+  return false
 }
 
-class InanimateObject {
-  constructor(name) {
+
+class World {
+  constructor(name, rooms) {
     this.name = name;
+    this.rooms = rooms;
   }
 }
+
+// TODO: Load a Room from file
+class Room {
+  constructor(name, items, occupants, doors) {
+    this.name = name;
+    // Treasure, important objects and stuff
+    this.items = items;
+    // Occupants can be players, enemies, or NPCs
+    this.occupants = occupants;
+    // Door maps a direction to a Room (or room_name.json?)
+    this.doors = doors;
+  }
+
+  enter(agent) {
+    // display items
+    // display occupants
+    this.occupants.push(agent);
+    if(hasEnemies(this.occupants)) {
+      encounter(this.occupants);
+    }
+  }
+
+  go(direction) {
+    let new_room = this.doors[direction];
+    if(new_room === undefined) {
+      let err_mesg = '';
+      console.log(err_mesg);
+      new_room = this
+    }
+    return new_room
+  }
+
+  get(item_name) {
+    return this.items[item_name];
+  }
+}
+
 
 class Agent {
-  constructor(name) {
+  constructor(name, current_room) {
     this.name = name;
+
+    this.current_room = current_room;
 
     // For now, everything has 10 HP, 5 ATK, 3 DEF
     this.health = 10;
     this.attack = 5;
     this.defence = 3;
+
+    this.inventory = [];
+    this.equipment = undefined;
+  }
+
+  go(direction) {
+    let new_room = this.current_room.go(direction);
+    this.current_room = new_room;
+  }
+
+  take(item_name) {
+    let item = this.current_room.get(item_name)
+    this.inventory.push(item);
   }
 
   attack(agent) {
@@ -93,14 +131,7 @@ class Agent {
 
   takeHit(attack) {
     let corrected_attack = Math.min(attack - this.defence, 0);
-    self.updateHealth(-corrected_attack);
-  }
-
-  updateHealth(difference) {
-    self.health += difference;
-    
-    if(self.health > 0)
-      console.log(`$this.name has died!`);
+    self.health -= corrected_attack;
   }
 
   takeTurn() {
@@ -120,6 +151,8 @@ class Enemy extends Agent {
 class Player extends Agent {
   takeTurn() {
     // TODO: Prompt user for input
+    // write to console output
+    // wait for console input
     return undefined
   }
 }
