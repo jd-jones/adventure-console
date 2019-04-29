@@ -56,23 +56,52 @@ function hasEnemies(occupants) {
 }
 
 
-class World {
+const isJsonFilename = (str) => path.extname(str) === 'json';
+
+
+function constructGameContext (assets_directory) {
+  const dir_contents = fs.readdirSync(assets_directory);
+  const json_fns = _.filter(dir_contents, isJsonFilename);
+
+  const jsonBasename = _.partialRight(path.basename, '.json');
+  const obj_keys = _.map(jsonBasename, json_fns);
+
+  const readAndParseJson = _.flow([fs.readFileSync, JSON.parse]);
+  const obj_values = _.map(readAndParseJson, json_fns);
+
+  const key_value_pairs = _.zip([obj_keys, obj_values]);
+  const object = Object.fromEntries(key_value_pairs);
+  return object;
+}
+
+class Location {
   constructor(name, rooms) {
     this.name = name;
     this.rooms = rooms;
   }
 }
 
-// TODO: Load a Room from file
 class Room {
-  constructor(name, items, occupants, doors) {
+  constructor(name, game_context) {
+
     this.name = name;
-    // Treasure, important objects and stuff
-    this.items = items;
-    // Occupants can be players, enemies, or NPCs
-    this.occupants = occupants;
-    // Door maps a direction to a Room (or room_name.json?)
-    this.doors = doors;
+
+    this.items = undefined;
+    this.occupants = undefined;
+    this.doors = undefined;
+    
+    this.loadState(game_context);
+  }
+
+  loadState(game_context) {
+    const state = game_context['players'][this.name];
+    
+    const contextualItem = _.partialRight(Item, game_context);
+    this.items = _.map(contextualItem, state.items);
+
+    // FIXME
+    this.occupants = undefined;
+    this.doors = undefined;
   }
 
   enter(agent) {
@@ -100,18 +129,58 @@ class Room {
 }
 
 
-class Agent {
-  constructor(name, current_room) {
+function initFromFile(json_file) {
+  let json_doc = JSON.parse(fs.readFileSync(json_file));
+  for(let property in json_doc) {
+    this[property] = json_doc[property];
+  }
+}
+
+
+class Item {
+  constructor(name, game_context) {
     this.name = name;
 
+    this.loadState(game_context);
+  }
+
+  loadState(game_context) {
+    const state = game_context['items'][this.name];
+    for(let property in state) {
+      this[property] = state[property];
+    }
+  }
+
+  useOn(user) {
+    throw "useOn is not defined!"
+  }
+}
+
+
+class Agent {
+  constructor(name, current_room, game_context) {
+
+    this.name = name;
     this.current_room = current_room;
 
-    // For now, everything has 10 HP, 5 ATK, 3 DEF
-    this.health = 10;
-    this.attack = 5;
-    this.defence = 3;
+    // These parameters are loaded from context 
+    this.level = undefined;
+    this.stats = undefined;
+    this.equipment = undefined;
+    this.inventory = undefined;
 
-    this.inventory = [];
+    this.loadState(game_context);
+  }
+
+  loadState(game_context) {
+    const state = game_context['players'][this.name];
+    
+    this.level = state.level;
+    this.stats = state.stats;
+
+    const contextualItem = _.partialRight(Item, game_context);
+    this.inventory = _.map(contextualItem, state.inventory);
+
     this.equipment = undefined;
   }
 
@@ -236,6 +305,10 @@ function onConnect (socket) {
 
 
 // Main script
+const assets_dir = path.join('dist', 'assets');
+const game_context = constructGameContext(assets_dir);
+
+
 app.use(express.static('dist'))
 app.get('/', serveHome);
 io.on('connection', onConnect);

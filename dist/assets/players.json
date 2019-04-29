@@ -1,0 +1,16 @@
+{
+  "harry": {
+    "level": 1,
+
+    "stats": {
+      "health": 10,
+      "attack": 5,
+      "defense": 3,
+      "agility": 1
+    },
+
+    "inventory": [],
+
+    "equipment": {}
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "entrance": {
+    "items": ["100 gold"], 
+    "occupants": ["dragon"],
+    "doors": {"north": "dining room", "west": "living room"}
+  }
+
+  "dining room": {
+    "items": ["bread", "knife"],
+    "occupants": [],
+    "doors": {"south": "entrance"}
+  }
+
+  "living room": {
+    "items": [],
+    "occupants": [],
+    "doors": {"east": "entrance"}
+  }
+}

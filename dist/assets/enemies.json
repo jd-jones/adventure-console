@@ -1,0 +1,15 @@
+{
+  "dragon": {
+    "level": 1,
+
+    "stats": {
+      "health": 5,
+      "attack": 3,
+      "defense": 1
+    },
+
+    "inventory": [],
+
+    "equipment": {}
+  }
+}
